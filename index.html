@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Build | Архитектура будущего</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Современные переменные и сброс */
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #124f32 100%);
+            --secondary: #10b981;
+            --secondary-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            --accent: #f59e0b;
+            --dark: #0a1929;
+            --dark-light: #0c2b42;
+            --light: #f8fafc;
+            --glass: rgba(15, 23, 42, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            --shadow-xl: 0 35px 60px -15px rgba(0, 0, 0, 0.4);
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: #334155;
+            line-height: 1.6;
+            background-color: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Темно-синий зеленый градиентный фон */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, #0a1929 0%, #0c2b42 25%, #0d3d3d 50%, #0a1929 75%, #0c2b42 100%);
+            background-size: 400% 400%;
+            z-index: -2;
+            animation: gradientShift 15s ease infinite;
+            opacity: 1;
+        }
+        
+        /* Абстрактные формы поверх градиента */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 30%),
+                radial-gradient(circle at 30% 60%, rgba(37, 99, 235, 0.07) 0%, transparent 22%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite alternate;
+        }
+        
+        /* Дополнительный слой для глубины */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, 
+                    transparent 0%, 
+                    rgba(16, 185, 129, 0.03) 25%, 
+                    transparent 50%, 
+                    rgba(37, 99, 235, 0.03) 75%, 
+                    transparent 100%);
+            background-size: 200% 200%;
+            z-index: -1;
+            animation: slide 25s linear infinite;
+            pointer-events: none;
+        }
+        
+        /* Типографика */
+        h1, h2, h3, h4 {
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--light);
+            letter-spacing: -0.025em;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+            font-size: 1.125rem;
+            line-height: 1.7;
+        }
+        
+        /* Контейнеры */
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 120px 0;
+            position: relative;
+        }
+        
+        /* Стеклянный морфизм */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                var(--shadow-lg);
+        }
+        
+        /* Современные кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 40px;
+            border-radius: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 1.125rem;
+            transition: var(--transition-smooth);
+            border: none;
+            cursor: pointer;
+            margin: 8px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.5);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.5);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--light);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Шапка с анимацией */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 25px 0;
+            background: rgba(10, 25, 41, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition-smooth);
+        }
+        
+        header.scrolled {
+            padding: 15px 0;
+            background: rgba(10, 25, 41, 0.95);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+        
+        nav ul li {
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition-smooth);
+            padding: 8px 0;
+            position: relative;
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        nav ul li a:hover {
+            color: #60a5fa;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Герой с эффектом параллакса */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 100px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            animation: slideUp 1s ease-out;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            animation: slideUp 1s ease-out 0.2s both;
+            max-width: 600px;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            animation: slideUp 1s ease-out 0.4s both;
+        }
+        
+        .hero-visual {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            height: 80%;
+            z-index: 1;
+            opacity: 0.9;
+        }
+        
+        .hero-visual-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 40px 0 0 40px;
+            overflow: hidden;
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hero-visual:hover .hero-visual-inner {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+        
+        .hero-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8) contrast(1.2);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hero-visual:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Эффект частиц */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Особенности с 3D-эффектом */
+        .features {
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            background: var(--primary-gradient);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            perspective: 1000px;
+        }
+        
+        .feature-card {
+            padding: 50px 40px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-20px) rotateX(5deg);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+            transform: translateZ(30px);
+        }
+        
+        /* Технологии с анимированными прогресс-барами */
+        .tech {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tech-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .tech-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+        
+        .tech-visual {
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .tech-visual:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+        
+        .tech-visual img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tech-visual:hover img {
+            transform: scale(1.05);
+        }
+        
+        .tech-item {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        
+        .tech-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .tech-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .tech-progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .tech-progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            width: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tech-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Проекты с hover-эффектом */
+        .projects {
+            position: relative;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+        
+        .project-card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 400px;
+            transition: var(--transition-smooth);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-20px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .project-image {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .project-card:hover .project-image img {
+            transform: scale(1.1);
+        }
+        
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px;
+            background: linear-gradient(to top, rgba(10, 25, 41, 0.95), transparent);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+        
+        .project-card:hover .project-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .project-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Статистика с анимацией */
+        .stats {
+            position: relative;
+            background: var(--primary-gradient);
+            border-radius: 40px;
+            overflow: hidden;
+            padding: 80px;
+            margin-top: 100px;
+        }
+        
+        .stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .counter {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Контакты */
+        .contact {
+            position: relative;
+        }
+        
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+        }
+        
+        .contact-form {
+            padding: 50px;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .form-label {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            color: rgba(255, 255, 255, 0.5);
+            transition: var(--transition-smooth);
+            pointer-events: none;
+        }
+        
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            top: -10px;
+            left: 15px;
+            font-size: 0.875rem;
+            color: var(--primary);
+            background: var(--dark);
+            padding: 0 10px;
+        }
+        
+        /* Футер */
+        footer {
+            padding: 80px 0 30px;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 60px;
+            margin-bottom: 50px;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--light);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .social-link {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-link::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            top: 100%;
+            left: 0;
+            transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+        }
+        
+        .social-link:hover::before {
+            top: 0;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-5px) rotate(5deg);
+            color: white;
+        }
+        
+        .footer-links h4 {
+            color: var(--light);
+            margin-bottom: 25px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-links h4::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 3px;
+            background: var(--primary-gradient);
+            bottom: -8px;
+            left: 0;
+            border-radius: 2px;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links ul li {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            display: inline-block;
+        }
+        
+        .footer-links ul li a:hover {
+            color: var(--primary);
+            transform: translateX(10px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        /* Анимации */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes slide {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 200% 200%;
+            }
+        }
+        
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 6px;
+        }
+        
+        /* Кнопка наверх */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+            z-index: 999;
+            transform: translateY(20px);
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            h2 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-visual {
+                width: 40%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .hero-container, .tech-container, .contact-container {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+            
+            .hero-visual {
+                position: relative;
+                width: 100%;
+                height: 400px;
+                margin-top: 60px;
+                transform: none;
+            }
+            
+            .hero-visual-inner {
+                border-radius: 24px;
+                transform: none;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            nav {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 25, 41, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 30px;
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-smooth);
+            }
+            
+            nav.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+            }
+            
+            section {
+                padding: 80px 0;
+            }
+            
+            .features-grid, .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                padding: 50px 30px;
+            }
+            
+            .contact-form, .feature-card {
+                padding: 30px;
+            }
+        }
+        
+        /* Эффект неонового текста */
+        .neon-text {
+            text-shadow: 
+                0 0 5px currentColor,
+                0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 40px var(--primary);
+            animation: pulse 2s infinite;
+        }
+        
+        /* Эффект волны */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+        
+        .wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 100px;
+        }
+        
+        /* 3D эффект для карточек */
+        .card-3d {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        
+        /* Эффект параллакса для фона */
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-attachment: fixed;
+            background-size: cover;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Частицы -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Шапка -->
+    <header id="mainHeader">
+        <div class="container header-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                NexusBuild
+            </a>
+            
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="#home">Главная</a></li>
+                    <li><a href="#features">Технологии</a></li>
+                    <li><a href="#projects">Проекты</a></li>
+                    <li><a href="#stats">Статистика</a></li>
+                    <li><a href="#contact">Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Герой -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="neon-text">Архитектура будущего</h1>
+                <p>Мы создаем умные, экологичные и технологичные здания, которые определяют новый стандарт городской среды. Инновации, устойчивость и безупречный дизайн.</p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Наши проекты
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <i class="fas fa-video"></i> Виртуальный тур
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-visual">
+            <div class="hero-visual-inner glass">
+                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Современная архитектура">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Особенности -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Инновационные решения</h2>
+                <p>Передовые технологии, которые меняют представление о строительстве</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card glass card-3d">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>ИИ-оптимизация</h3>
+                    <p>Нейросети анализируют тысячи параметров для создания идеальных архитектурных решений с максимальной эффективностью.</p>
+                </div>
+                
+                <div class="feature-card glass card-3d">
+                    <div class="feature-icon">
+                        <i class="fas fa-solar-panel"></i>
+                    </div>
+                    <h3>Энергетическая автономия</h3>
+                    <p>Интегрированные системы возобновляемой энергии обеспечивают зданиям полную энергонезависимость.</p>
+                </div>
+                
+                <div class="feature-card glass card-3d">
+                    <div class="feature-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <h3>Циркулярная экономика</h3>
+                    <p>Замкнутые циклы использования материалов с минимальными отходами и максимальной переработкой.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Технологии -->
+    <section class="tech">
+        <div class="tech-bg"></div>
+        <div class="container tech-container">
+            <div>
+                <h2>Цифровая трансформация</h2>
+                <p>Внедряем самые современные технологии для создания умных, безопасных и эффективных зданий.</p>
+                
+                <div class="tech-list">
+                    <div class="tech-item glass">
+                        <div class="tech-header">
+                            <h4>BIM-моделирование</h4>
+                            <span class="tech-percent">95%</span>
+                        </div>
+                        <div class="tech-progress">
+                            <div class="tech-progress-fill" data-width="95"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-item glass">
+                        <div class="tech-header">
+                            <h4>IoT интеграция</h4>
+                            <span class="tech-percent">88%</span>
+                        </div>
+                        <div class="tech-progress">
+                            <div class="tech-progress-fill" data-width="88"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-item glass">
+                        <div class="tech-header">
+                            <h4>Автоматизация процессов</h4>
+                            <span class="tech-percent">92%</span>
+                        </div>
+                        <div class="tech-progress">
+                            <div class="tech-progress-fill" data-width="92"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tech-visual glass">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Цифровые технологии">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Проекты -->
+    <section class="projects" id="projects">
+        <div class="container">
+            <div class="section-title">
+                <h2>Наши проекты</h2>
+                <p>Реализованные объекты, которые определяют будущее архитектуры</p>
+            </div>
+            
+            <div class="projects-grid">
+                <div class="project-card glass">
+                    <div class="project-image">
+                        <img src="https://images.unsplash.com/photo-1487956382158-bb926046304a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Умный квартал">
+                    </div>
+                    <div class="project-overlay">
+                        <h3>Умный квартал "Эко-Хабитат"</h3>
+                        <p>Автономный жилой комплекс с интегрированной экосистемой и нулевым энергобалансом.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Умный город</span>
+                            <span class="project-tag">Экология</span>
+                            <span class="project-tag">Инновации</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card glass">
+                    <div class="project-image">
+                        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Бизнес-центр">
+                    </div>
+                    <div class="project-overlay">
+                        <h3>Бизнес-центр "ТехноХаб"</h3>
+                        <p>Интеллектуальное офисное пространство с адаптивными системами и биометрическим доступом.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Умный офис</span>
+                            <span class="project-tag">Биометрия</span>
+                            <span class="project-tag">IoT</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-card glass">
+                    <div class="project-image">
+                        <img src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Исследовательский центр">
+                    </div>
+                    <div class="project-overlay">
+                        <h3>Исследовательский центр "Футуро"</h3>
+                        <p>Научный комплекс для изучения и разработки строительных технологий будущего.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Наука</span>
+                            <span class="project-tag">Исследования</span>
+                            <span class="project-tag">Технологии</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Статистика -->
+    <section class="stats" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="counter" data-count="156">0</div>
+                    <p>Завершенных проектов</p>
+                </div>
+                <div class="stat-item">
+                    <div class="counter" data-count="94">0</div>
+                    <p>Энергоэффективность</p>
+                </div>
+                <div class="stat-item">
+                    <div class="counter" data-count="78">0</div>
+                    <p>Переработка материалов</p>
+                </div>
+                <div class="stat-item">
+                    <div class="counter" data-count="12">0</div>
+                    <p>Наград и премий</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Контакты -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Начните проект будущего</h2>
+                <p>Свяжитесь с нами для обсуждения ваших идей и задач</p>
+            </div>
+            
+            <div class="contact-container">
+                <div class="contact-info glass" style="padding: 50px;">
+                    <h3>Контакты</h3>
+                    <p>Мы готовы воплотить самые смелые архитектурные идеи в реальность.</p>
+                    
+                    <div class="contact-details" style="margin-top: 40px;">
+                        <div class="contact-item" style="display: flex; align-items: center; margin-bottom: 30px;">
+                            <div style="width: 50px; height: 50px; background: var(--primary-gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <i class="fas fa-map-marker-alt" style="color: white; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--light); margin-bottom: 5px;">Адрес</h4>
+                                <p style="color: #cbd5e1;">Москва, Пресненская набережная, 12</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item" style="display: flex; align-items: center; margin-bottom: 30px;">
+                            <div style="width: 50px; height: 50px; background: var(--primary-gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <i class="fas fa-phone" style="color: white; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--light); margin-bottom: 5px;">Телефон</h4>
+                                <p style="color: #cbd5e1;">+7 (495) 123-45-67</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item" style="display: flex; align-items: center;">
+                            <div style="width: 50px; height: 50px; background: var(--primary-gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <i class="fas fa-envelope" style="color: white; font-size: 1.2rem;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--light); margin-bottom: 5px;">Email</h4>
+                                <p style="color: #cbd5e1;">contact@nexusbuild.ru</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form glass">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="name" placeholder=" " required>
+                            <label for="name" class="form-label">Ваше имя</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="email" class="form-control" id="email" placeholder=" " required>
+                            <label for="email" class="form-label">Email</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="tel" class="form-control" id="phone" placeholder=" ">
+                            <label for="phone" class="form-label">Телефон</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <select class="form-control" id="projectType" required style="appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M7 10l5 5 5-5z\"/></svg>'); background-repeat: no-repeat; background-position: right 20px center; background-size: 20px;">
+                                <option value="" disabled selected> </option>
+                                <option value="residential">Жилая недвижимость</option>
+                                <option value="commercial">Коммерческая недвижимость</option>
+                                <option value="industrial">Промышленные объекты</option>
+                                <option value="other">Другое</option>
+                            </select>
+                            <label for="projectType" class="form-label">Тип проекта</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea class="form-control" id="message" rows="4" placeholder=" " required></textarea>
+                            <label for="message" class="form-label">Сообщение</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 20px;">
+                            <i class="fas fa-paper-plane"></i> Отправить запрос
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-about">
+                    <div class="footer-logo">NexusBuild</div>
+                    <p>Лидер в создании умной и экологичной архитектуры. Мы строим будущее, сохраняя гармонию с природой.</p>
+                    
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-telegram-plane"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Технологии</h4>
+                    <ul>
+                        <li><a href="#">Умные здания</a></li>
+                        <li><a href="#">Энергоэффективность</a></li>
+                        <li><a href="#">BIM-моделирование</a></li>
+                        <li><a href="#">IoT интеграция</a></li>
+                        <li><a href="#">Устойчивое развитие</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Проекты</h4>
+                    <ul>
+                        <li><a href="#">Жилые комплексы</a></li>
+                        <li><a href="#">Офисные центры</a></li>
+                        <li><a href="#">Общественные здания</a></li>
+                        <li><a href="#">Инфраструктура</a></li>
+                        <li><a href="#">Реконструкция</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Компания</h4>
+                    <ul>
+                        <li><a href="#">О нас</a></li>
+                        <li><a href="#">Команда</a></li>
+                        <li><a href="#">Карьера</a></li>
+                        <li><a href="#">Новости</a></li>
+                        <li><a href="#">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2024 NexusBuild. Все права защищены.</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">Строим умное будущее сегодня</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Кнопка наверх -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <script>
+        // Инициализация частиц
+        function initParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Случайные свойства
+                const size = Math.random() * 4 + 1;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 15 + 10;
+                
+                // Цвета из новой палитры
+                const colors = ['#0c2b42', '#10b981', '#0d3d3d', '#0a1929', '#2563eb'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                particle.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${posX}%;
+                    top: ${posY}%;
+                    background: ${color};
+                    opacity: ${Math.random() * 0.2 + 0.05};
+                    animation: float ${duration}s infinite ${delay}s;
+                    box-shadow: 0 0 10px ${color};
+                `;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Создаем дополнительный слой для фона
+        const backgroundOverlay = document.createElement('div');
+        backgroundOverlay.className = 'background-overlay';
+        document.body.appendChild(backgroundOverlay);
+        
+        // Параллакс эффект для частиц
+        window.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 0.2;
+                const x = (mouseX - 0.5) * speed * 50;
+                const y = (mouseY - 0.5) * speed * 50;
+                
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+        
+        // Анимация счетчиков
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            const progressBars = document.querySelectorAll('.tech-progress-fill');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                // Запуск при видимости
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setTimeout(updateCounter, 300);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                observer.observe(counter);
+            });
+            
+            // Анимация прогресс-баров
+            progressBars.forEach(bar => {
+                const width = bar.getAttribute('data-width');
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                bar.style.width = width + '%';
+                            }, 500);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                observer.observe(bar);
+            });
+        }
+        
+        // 3D эффект для карточек при наведении мыши
+        document.querySelectorAll('.card-3d').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateY = ((x - centerX) / centerX) * 5;
+                const rotateX = ((centerY - y) / centerY) * 5;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+            });
+        });
+        
+        // Анимация появления элементов при скролле
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.feature-card, .tech-item, .project-card');
+            
+            elements.forEach((element, index) => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight * 0.85) {
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                        
+                        if (element.classList.contains('tech-item')) {
+                            element.classList.add('visible');
+                        }
+                    }, index * 100);
+                }
+            });
+        }
+        
+        // Неоновый эффект для текста
+        function neonEffect() {
+            const neonElements = document.querySelectorAll('.neon-text');
+            
+            setInterval(() => {
+                neonElements.forEach(element => {
+                    const hue = Math.floor(Math.random() * 60) + 200; // Синие оттенки
+                    element.style.color = `hsl(${hue}, 100%, 70%)`;
+                    element.style.textShadow = `
+                        0 0 5px hsl(${hue}, 100%, 70%),
+                        0 0 10px hsl(${hue}, 100%, 70%),
+                        0 0 20px hsl(${hue}, 100%, 70%),
+                        0 0 40px hsl(${hue}, 100%, 50%)
+                    `;
+                });
+            }, 2000);
+        }
+        
+        // Эффект типа для заголовка
+        function typewriterEffect() {
+            const heroTitle = document.querySelector('.hero h1');
+            if (!heroTitle) return;
+            
+            const text = heroTitle.textContent;
+            heroTitle.textContent = '';
+            
+            let i = 0;
+            const typeChar = () => {
+                if (i < text.length) {
+                    heroTitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, 50);
+                }
+            };
+            
+            setTimeout(typeChar, 500);
+        }
+        
+        // Обработка формы с анимацией
+        const contactForm = document.getElementById('contactForm');
+        
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalHTML = submitBtn.innerHTML;
+            
+            // Анимация отправки
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            submitBtn.disabled = true;
+            
+            // Создаем эффект частиц при отправке
+            createFormParticles(submitBtn);
+            
+            // Имитация отправки
+            setTimeout(() => {
+                // Успешная отправка
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Отправлено!';
+                submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)';
+                
+                // Анимация успеха
+                const successParticles = document.createElement('div');
+                successParticles.style.position = 'absolute';
+                successParticles.style.top = '0';
+                successParticles.style.left = '0';
+                successParticles.style.width = '100%';
+                successParticles.style.height = '100%';
+                successParticles.style.pointerEvents = 'none';
+                contactForm.appendChild(successParticles);
+                
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    const size = Math.random() * 10 + 5;
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 100 + 50;
+                    
+                    particle.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: #10b981;
+                        border-radius: 50%;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        animation: particleExplosion 1s ease-out forwards;
+                        --angle: ${angle}rad;
+                        --distance: ${distance}px;
+                    `;
+                    
+                    successParticles.appendChild(particle);
+                }
+                
+                // Стиль для анимации
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes particleExplosion {
+                        0% {
+                            transform: translate(-50%, -50%) scale(0);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translate(
+                                calc(-50% + cos(var(--angle)) * var(--distance)),
+                                calc(-50% + sin(var(--angle)) * var(--distance))
+                            ) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Сброс формы
+                setTimeout(() => {
+                    contactForm.reset();
+                    successParticles.remove();
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = '';
+                }, 2000);
+            }, 2000);
+        });
+        
+        function createFormParticles(element) {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                const size = Math.random() * 6 + 2;
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: #2563eb;
+                    border-radius: 50%;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: particleSpin 1s ease-out forwards;
+                    --angle: ${angle}rad;
+                    --distance: ${distance}px;
+                    z-index: -1;
+                `;
+                
+                element.appendChild(particle);
+                
+                // Удаление частицы после анимации
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+            
+            // Добавляем стиль для анимации
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes particleSpin {
+                    0% {
+                        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translate(
+                            calc(-50% + cos(var(--angle)) * var(--distance)),
+                            calc(-50% + sin(var(--angle)) * var(--distance))
+                        ) rotate(360deg) scale(0);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Мобильное меню
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+        
+        menuToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+            menuToggle.innerHTML = mainNav.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Закрываем меню на мобильных
+                    if (window.innerWidth <= 992) {
+                        mainNav.classList.remove('active');
+                        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
+            });
+        });
+        
+        // Изменение шапки при скролле
+        const header = document.getElementById('mainHeader');
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            // Шапка
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            // Кнопка "наверх"
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+            
+            // Анимация элементов
+            animateOnScroll();
+        });
+        
+        // Звуковой эффект при наведении на кнопки (опционально)
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                // Создаем легкий звуковой эффект через Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 523.25; // Нота C5
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.1);
+                    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (e) {
+                    console.log('Audio context not supported');
+                }
+            });
+        });
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            animateCounters();
+            typewriterEffect();
+            neonEffect();
+            animateOnScroll();
+            
+            // Устанавливаем начальные стили для анимации
+            document.querySelectorAll('.feature-card, .tech-item, .project-card').forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+            
+            // Анимация года в футере
+            const yearElement = document.querySelector('.copyright p');
+            if (yearElement) {
+                const currentYear = new Date().getFullYear();
+                yearElement.innerHTML = yearElement.innerHTML.replace('2024', currentYear);
+            }
+        });
+        
+        // Эффект параллакса для героя
+        window.addEventListener('mousemove', (e) => {
+            const heroVisual = document.querySelector('.hero-visual-inner');
+            if (heroVisual) {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+                
+                heroVisual.style.transform = `perspective(1000px) rotateY(${-10 + x}deg) rotateX(${y}deg)`;
+            }
+        });
+        
+        // Эффект волны для секций
+        function createWaveEffect() {
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach((section, index) => {
+                if (index % 2 === 0) {
+                    const wave = document.createElement('div');
+                    wave.className = 'wave';
+                    wave.innerHTML = `
+                        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
+                            fill="rgba(255,255,255,0.03)"></path>
+                        </svg>
+                    `;
+                    section.appendChild(wave);
+                }
+            });
+        }
+        
+        // Интерактивный эффект для карточек проектов
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const glowX = (x - centerX) / centerX;
+                const glowY = (y - centerY) / centerY;
+                
+                card.style.boxShadow = `
+                    ${-glowX * 20}px ${-glowY * 20}px 60px rgba(37, 99, 235, 0.3),
+                    ${glowX * 10}px ${glowY * 10}px 30px rgba(124, 58, 237, 0.2)
+                `;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = 'var(--shadow-lg)';
+            });
+        });
+        
+        // Инициализация волн
+        setTimeout(createWaveEffect, 1000);
+        
+        // Эффект параллакса для градиентного фона
+        window.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            // Параллакс для фонового слоя
+            const background = document.querySelector('.background-overlay');
+            if (background) {
+                const x = (mouseX - 0.5) * 20;
+                const y = (mouseY - 0.5) * 20;
+                background.style.transform = `translate(${x}px, ${y}px)`;
+            }
+        });
+    </script>
+</body>
+</html>

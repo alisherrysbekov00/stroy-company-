@@ -1,0 +1,354 @@
+/* Сброс и базовые стили */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #fff;
+}
+
+.container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Типографика */
+h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+
+h1 { font-size: 3.5rem; }
+h2 { font-size: 2.8rem; margin-bottom: 1.5rem; text-align: center; }
+h3 { font-size: 1.8rem; }
+
+/* Кнопки */
+.btn-primary {
+    display: inline-block;
+    background: #d4a373;
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: #c48e5a;
+    transform: translateY(-3px);
+}
+
+.btn-secondary {
+    display: inline-block;
+    background: transparent;
+    color: #d4a373;
+    border: 2px solid #d4a373;
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 15px;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #d4a373;
+    color: #fff;
+}
+
+/* Шапка */
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+
+.header__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo h1 {
+    color: #333;
+    font-size: 2rem;
+}
+
+.logo span {
+    color: #d4a373;
+}
+
+.nav {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav a:hover {
+    color: #d4a373;
+}
+
+/* Hero */
+.hero {
+    margin-top: 100px;
+    padding: 100px 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1504307655152-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+}
+
+.hero__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.hero__content h2 {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.hero__content p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    max-width: 500px;
+}
+
+.hero__image img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* Преимущества */
+.advantages {
+    padding: 100px 0;
+    background: #f8f5f2;
+}
+
+.advantages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    text-align: center;
+}
+
+.adv-card {
+    background: #fff;
+    padding: 40px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+}
+
+.adv-card:hover {
+    transform: translateY(-10px);
+}
+
+.adv-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+/* Услуги и проекты */
+.services, .projects {
+    padding: 100px 0;
+}
+
+.section-title {
+    font-size: 3rem;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    width: 100px;
+    height: 4px;
+    background: #d4a373;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.services__grid, .projects__grid, .reviews__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 30px;
+}
+
+.service-card, .project-card, .review-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.service-card:hover, .project-card:hover {
+    transform: translateY(-10px);
+}
+
+.service-card img, .project-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.project-info, .service-card h3, .service-card p {
+    padding: 20px;
+}
+
+.review-card {
+    padding: 30px;
+    font-style: italic;
+}
+
+.review-card strong {
+    display: block;
+    margin-top: 15px;
+    font-style: normal;
+    color: #d4a373;
+}
+
+/* О нас */
+.about {
+    padding: 120px 0;
+    background: #111;
+    color: #fff;
+}
+
+.about__container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.about__text ul {
+    margin: 30px 0;
+}
+
+.about__text li {
+    margin-bottom: 12px;
+    padding-left: 10px;
+}
+
+.about__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .number {
+    font-size: 4rem;
+    color: #d4a373;
+    display: block;
+}
+
+/* Контакты */
+.contact {
+    padding: 120px 0;
+    background: #f8f5f2;
+}
+
+.contact__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+}
+
+.contact__form form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contact__form input,
+.contact__form textarea {
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.contact__form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.contact__info p {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+/* Футер */
+.footer {
+    background: #111;
+    color: #888;
+    text-align: center;
+    padding: 40px 0;
+}
+
+/* Адаптив */
+@media (max-width: 992px) {
+    .hero__container,
+    .about__container,
+    .contact__container {
+        grid-template-columns: 1fr;
+    }
+
+    .hero__content h2 {
+        font-size: 3rem;
+    }
+
+    .nav {
+        gap: 15px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .header__container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .hero {
+        padding: 60px 0;
+    }
+
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2.3rem; }
+}
